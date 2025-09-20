@@ -632,7 +632,7 @@ class InteractiveBibleAnalytics:
             print(f"    Text: \"{text}\"")
             print()
     
-    def save_analysis_report(self, output_dir="/home/cyak/Downloads/"):
+    def save_analysis_report(self, output_dir="./"):
         """Save detailed analysis report to files."""
         if not self.matching_passages:
             return
