@@ -707,14 +707,15 @@ def main():
     print("🚀 Interactive Bible Verse Analytics")
     print("=" * 50)
     
-    # Default path to the Bible JSON file
-    default_bible_path = "/home/cyak/Downloads/bible.json"
+    # Dynamically find bible.json in the current directory
+    script_dir = Path(__file__).parent
+    default_bible_path = script_dir / "bible.json"
     
     # Check if a custom path was provided as command line argument
     if len(sys.argv) > 1:
         bible_json_path = sys.argv[1]
     else:
-        bible_json_path = default_bible_path
+        bible_json_path = str(default_bible_path)
     
     # Verify the file exists
     if not Path(bible_json_path).exists():
