@@ -66,19 +66,24 @@ class InteractiveBibleAnalytics:
         """Extract all passages matching the specified chapter and verse."""
         print(f" Extracting Chapter {self.target_chapter}, Verse {self.target_verse} passages...")
         
-        for reference, text in self.bible_data.items():
-            if ':' in reference:
-                book_chapter, verse = reference.split(':', 1)
+        target_chapter = int(self.target_chapter)
+        target_verse = int(self.target_verse)
+        
+        for book in self.bible_data['books']:
+            book_title = book['title']
+            for chapter in book['chapters']:
+                chapter_num = chapter['chapter']
                 
-                # Check if this matches the target verse
-                if verse == self.target_verse:
-                    parts = book_chapter.split()
-                    if len(parts) >= 2:
-                        book_name = ' '.join(parts[:-1])
-                        chapter_num = parts[-1]
+                # Check if this matches the target chapter
+                if chapter_num == target_chapter:
+                    for verse in chapter['verses']:
+                        verse_num = verse['verse']
                         
-                        # Check if this matches the target chapter
-                        if chapter_num == self.target_chapter:
+                        # Check if this matches the target verse
+                        if verse_num == target_verse:
+                            # Construct reference in the format: "Book Title Chapter:Verse"
+                            reference = f"{book_title} {chapter_num}:{verse_num}"
+                            text = verse['text']
                             self.matching_passages[reference] = text
         
         print(f"✅ Found {len(self.matching_passages)} matching passages")
@@ -287,15 +292,8 @@ class InteractiveBibleAnalytics:
         """Identifies all unique book names present in the loaded Bible data."""
         print("📚 Identifying all unique books in the Bible...")
         self.all_books = set()
-        for reference in self.bible_data.keys():
-            if ':' in reference:
-                book_chapter = reference.split(':')[0]
-                book_name_parts = book_chapter.split()
-                if len(book_name_parts) > 1 and book_name_parts[-1].isdigit():
-                    book_name = ' '.join(book_name_parts[:-1])
-                else:
-                    book_name = book_chapter
-                self.all_books.add(book_name)
+        for book in self.bible_data['books']:
+            self.all_books.add(book['title'])
         print(f"✅ Identified {len(self.all_books)} unique books.")
 
     def analyze_matching_passages(self):
@@ -308,13 +306,16 @@ class InteractiveBibleAnalytics:
         # Identify books that contain the target passage
         self.books_with_target = set()
         for reference in self.matching_passages.keys():
-            if ':' in reference:
-                book_chapter = reference.split(':')[0]
-                book_name_parts = book_chapter.split()
+            # Extract book title from reference (everything before the last space and colon)
+            # Format: "Book Title Chapter:Verse"
+            parts = reference.split(':')
+            if len(parts) >= 2:
+                book_chapter_part = parts[0]
+                book_name_parts = book_chapter_part.split()
                 if len(book_name_parts) > 1 and book_name_parts[-1].isdigit():
                     book_name = ' '.join(book_name_parts[:-1])
                 else:
-                    book_name = book_chapter
+                    book_name = book_chapter_part
                 self.books_with_target.add(book_name)
 
         # Identify books that do not contain the target passage
