@@ -84,10 +84,20 @@ class InteractiveBibleAnalytics:
                             # Construct reference in the format: "Book Title Chapter:Verse"
                             reference = f"{book_title} {chapter_num}:{verse_num}"
                             text = verse['text']
-                            self.matching_passages[reference] = text
+                            # Remove verse number from the beginning of the text
+                            cleaned_text = self._remove_verse_number(text, verse_num)
+                            self.matching_passages[reference] = cleaned_text
         
         print(f"✅ Found {len(self.matching_passages)} matching passages")
         return self.matching_passages
+    
+    def _remove_verse_number(self, text, verse_num):
+        """Remove verse number from the beginning of verse text."""
+        # Pattern to match verse number at the beginning followed by optional space
+        verse_pattern = f"^{verse_num}\\s*"
+        import re
+        cleaned_text = re.sub(verse_pattern, '', text).strip()
+        return cleaned_text
     
     def analyze_seven_patterns(self):
         """Analyze ALL patterns related to the number 7 algorithmically, excluding bracketed text."""
